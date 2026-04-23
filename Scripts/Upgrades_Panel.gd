@@ -1,3 +1,4 @@
+## Panel de mejoras: pestañas (clics, unidades, defensa), compras, tooltips y atajos de teclado.
 class_name UpgradesPanel extends Node
 
 # Importing instantiable scenes
@@ -24,15 +25,18 @@ var archer_positions = [Vector2(361, 16), Vector2(361, 65), Vector2(361, 155), V
 @onready var castle_repairs = $MarginContainer/TabContainer/DefensesPanel/VBoxContainer/CastleRepairsContainer
 @onready var castle_max_hp = $MarginContainer/TabContainer/DefensesPanel/VBoxContainer/CastleMaxHPContainer
 
+## Enfoca el botón de pestaña “Clicks” al iniciar.
 func _ready():
 	# Focus on Clicks menu button at startup
 	$MenuControls/ClicksButton.grab_focus()
 
 # Upgrades' pop text behavior ------------------------
+## Cierra el tooltip de ayuda si sigue abierto.
 func _close_preexisting_pop_text():
 	if pop_text_instance != null:
 		pop_text_instance.close()
 		
+## Muestra un cuadro de ayuda (escena pop_text) con título y descripción de la mejora.
 func _show_pop_text(title, description):
 	_close_preexisting_pop_text()
 	pop_text_instance = _pop_text.instantiate()
@@ -41,18 +45,23 @@ func _show_pop_text(title, description):
 	add_child(pop_text_instance)
 
 # Tab switching and sliding -------------------------------
+## Al cambiar de pestaña, cierra tooltips para no dejar texto obsoleto.
 func _on_tab_container_tab_changed(_tab):
 	_close_preexisting_pop_text()
 
+## Cambia a la pestaña de mejoras de clic.
 func _on_clicks_button_pressed():
 	tab_container.set_current_tab(0)
 
+## Cambia a la pestaña de unidades (arqueros / flechas).
 func _on_units_button_pressed():
 	tab_container.set_current_tab(1)
 
+## Cambia a la pestaña de defensas del castillo.
 func _on_defenses_button_pressed():
 	tab_container.set_current_tab(2)
 
+## Desliza el panel verticalmente y alterna el texto del botón (panel plegable).
 func _on_slider_button_toggled(toggled_on):
 	_close_preexisting_pop_text()
 	
@@ -67,11 +76,13 @@ func _on_slider_button_toggled(toggled_on):
 
 # CLICKS UPGRADES -----------------------------------------
 # Click Damage container
+## Abre tooltip: daño de clic.
 func _on_click_damage_texture_button_pressed():
 	_show_pop_text(
 		"Click Damage [Q]", 
 		"Increases the damage dealt by the player's active clicks.")
 
+## Compra mejora de daño de clic si hay monedas suficientes.
 func _on_click_damage_upgrade_button_pressed():
 	# Extra check in case of KeyboardInput
 	if stats.total_coins < stats.click_damage_cost: return
@@ -85,11 +96,13 @@ func _on_click_damage_upgrade_button_pressed():
 	update_upgrade_button_status()
 
 # Click Area Size container
+## Abre tooltip: tamaño del área de clic.
 func _on_click_area_size_texture_button_pressed():
 	_show_pop_text(
 		"Click Area Size [W]", 
 		"Expands the size of the damaging area surrounding a ​​click.")
 
+## Compra tamaño de área y puede revelar la mejora de daño de área.
 func _on_click_area_size_upgrade_button_pressed():
 	# Extra check in case of KeyboardInput
 	if stats.total_coins < stats.click_area_size_cost: return
@@ -106,11 +119,13 @@ func _on_click_area_size_upgrade_button_pressed():
 	if stats.click_area_damage_level >= 1: click_area_damage.set_visible(true)
 
 # Click Area Damage container
+## Abre tooltip: daño del área de clic.
 func _on_click_area_damage_texture_button_pressed():
 	_show_pop_text(
 		"Click Area Damage [E]", 
 		"Increases the damage of the area surrounding a click.")
 
+## Compra daño de área (requiere haber desbloqueado área con tamaño > 0).
 func _on_click_area_damage_upgrade_button_pressed():
 	# Extra check in case of KeyboardInput
 	if stats.total_coins < stats.click_area_damage_cost or stats.click_area_size_stat == 0:
@@ -127,11 +142,13 @@ func _on_click_area_damage_upgrade_button_pressed():
 
 # UNITS UPGRADES ------------------------------------------
 # +1 Archer container
+## Abre tooltip: añadir arquero.
 func _on_number_archers_texture_button_pressed():
 	_show_pop_text(
 		"+1 Archer [A]", 
 		"Places an additional archer, fires arrows automatically.")
 
+## Compra un arquero: instancia en [code]Defences[/code] y actualiza visibilidad de mejoras de flecha.
 func _on_number_archers_upgrade_button_pressed():
 	# Extra check in case of KeyboardInput
 	if stats.total_coins < stats.number_archers_cost or stats.number_archers_level >= 4:
@@ -161,11 +178,13 @@ func _on_number_archers_upgrade_button_pressed():
 		number_arrows.set_visible(true)
 
 # Arrow Damage container ----------------------------------
+## Abre tooltip: daño de flecha.
 func _on_arrow_damage_texture_button_pressed():
 	_show_pop_text(
 		"Arrow Damage [S]", 
 		"Increases the damage of a fired arrow.")
 
+## Compra daño de flecha (requiere al menos un arquero).
 func _on_arrow_damage_upgrade_button_pressed():
 	# Extra check in case of KeyboardInput
 	if stats.total_coins < stats.arrow_damage_cost or stats.number_archers_level == 0:
@@ -180,11 +199,13 @@ func _on_arrow_damage_upgrade_button_pressed():
 	update_upgrade_button_status()
 
 # Arrow Cooldown container --------------------------------
+## Abre tooltip: cadencia de disparo.
 func _on_arrow_cooldown_texture_button_pressed():
 	_show_pop_text(
 		"Arrow Cooldown [D]", 
 		"Decreases the time between arrows fired.")
 
+## Compra reducción de tiempo entre disparos.
 func _on_arrow_cooldown_upgrade_button_pressed():
 	# Extra check in case of KeyboardInput
 	if stats.total_coins < stats.arrow_cooldown_cost or stats.number_archers_level == 0:
@@ -199,11 +220,13 @@ func _on_arrow_cooldown_upgrade_button_pressed():
 	update_upgrade_button_status()
 
 # +1 Arrow container --------------------------------------
+## Abre tooltip: más flechas por disparo.
 func _on_number_arrows_texture_button_pressed():
 	_show_pop_text(
 		"+1 Arrow [F]", 
 		"Fires an additional arrow per shot.")
 
+## Compra flecha adicional por ciclo (solo con los 4 arqueros comprados).
 func _on_number_arrows_upgrade_button_pressed():
 	# Extra check in case of KeyboardInput
 	if stats.total_coins < stats.number_arrows_cost or stats.number_archers_level < 4:
@@ -220,11 +243,13 @@ func _on_number_arrows_upgrade_button_pressed():
 
 # DEFENSES UPGRADES ---------------------------------------
 # Castle Repairs container --------------------------------
+## Abre tooltip: reparación del castillo.
 func _on_castle_repairs_texture_button_pressed():
 	_show_pop_text(
 		"Castle Repairs [Z]", 
 		"Instantly recovers a fixed amount of HP.")
 	
+## Gasta monedas para curar una fracción de la vida máxima.
 func _on_castle_repairs_upgrade_button_pressed():
 	# Extra check in case of KeyboardInput
 	if stats.total_coins < stats.castle_repairs_cost or stats.player_hp == stats.castle_max_hp_stat:
@@ -240,11 +265,13 @@ func _on_castle_repairs_upgrade_button_pressed():
 	update_upgrade_button_status()
 
 # Castle Max HP container ---------------------------------
+## Abre tooltip: subir vida máxima.
 func _on_castle_max_hp_texture_button_pressed():
 	_show_pop_text(
 		"Castle Max HP [X]", 
 		"Increases the castle's maximum health points.")
 	
+## Compra aumento de vida máxima y actualiza coste de reparación en UI.
 func _on_castle_max_hp_upgrade_button_pressed():
 	# Extra check in case of KeyboardInput
 	if stats.total_coins < stats.castle_max_hp_cost:
@@ -262,6 +289,7 @@ func _on_castle_max_hp_upgrade_button_pressed():
 
 
 # Keyboard Inputs -----------------------------------------
+## Atajos (Q/W/E/A/S/D/F/Z/X y espacio): delegan en los mismos handlers que los botones.
 func _unhandled_key_input (_event):
 	# Disable inputs on game over
 	if stats.player_hp == 0: return
@@ -289,6 +317,7 @@ func _unhandled_key_input (_event):
 
 
 # VALUE LOADING AND UPDATING ------------------------------
+## Rellena todos los contenedores de mejora desde [code]stats[/code] al inicio de la partida.
 func load_initial_values():
 	# Loads initial values of containers and buttons at startup
 	# Clicks upgrades
@@ -309,6 +338,7 @@ func load_initial_values():
 	# Buttons statuses
 	update_upgrade_button_status()
 
+## Habilita o deshabilita cada botón de compra según monedas y reglas (vida llena, prerequisitos).
 func update_upgrade_button_status():
 	# Runs at startup, after collecting a coin, and after buying an upgrade
 	click_damage.update_button_status(stats.total_coins < stats.click_damage_cost)

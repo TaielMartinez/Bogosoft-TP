@@ -1,3 +1,4 @@
+## Pantalla final: resume niveles de mejoras y ofrece reiniciar o salir (con retraso en los botones).
 extends Node
 
 var stats:Stats
@@ -22,6 +23,7 @@ signal restart_game
 @onready var quit_button = $MarginContainer/HBoxContainer/VBoxContainer/ClickControls/QuitButton
 signal quit_game
 
+## Oculta botones al inicio y programa su aparición tras leer valores.
 func _ready():
 	# Diasble the buttons initially
 	restart_button.set_visible(false)
@@ -29,6 +31,7 @@ func _ready():
 	add_child(btn_enable_timer)
 	btn_enable_timer.connect("timeout", activate_buttons)
 
+## Rellena el resumen de niveles y arranca el temporizador antes de permitir clic en salir/reiniciar.
 func load_values():
 	click_damage_label.text = "LV." + str(stats.click_damage_level)
 	click_area_size_label.text = "LV." + str(stats.click_area_size_level)
@@ -42,14 +45,17 @@ func load_values():
 	#btn_enable_timer.set_one_shot(true)
 	btn_enable_timer.start(2)
 	
+## Muestra botones con una pequeña animación en cadena.
 func activate_buttons():
 	var game_over_tween = get_tree().create_tween()
 	game_over_tween.tween_property(game_over_label, "position", Vector2(0, 56), 0.5)
 	game_over_tween.tween_property(restart_button, "visible", true, 0)
 	game_over_tween.tween_property(quit_button, "visible", true, 0)
 
+## Propaga reinicio al [World].
 func _on_restart_button_pressed():
 	restart_game.emit()
 	
+## Propaga salida al [World].
 func _on_quit_button_pressed():
 	quit_game.emit()

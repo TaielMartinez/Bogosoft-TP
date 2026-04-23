@@ -1,3 +1,4 @@
+## Fila de UI de una mejora: muestra nivel, stat, coste y próximo valor; habilita o deshabilita el botón de compra.
 extends Node
 
 # This class will update all the parameters on an upgrade
@@ -6,6 +7,7 @@ extends Node
 
 var suffixes = ["", "K", "M", "B", "T", "Q", "Qt"]  # Add more suffixes as needed
 
+## Rellena etiquetas; admite stat como texto fijo (p. ej. reparación) o número formateado.
 func load_values(level, stat, cost, next):
 	# Formats values and fills the labels (extra conditions for Healing upgrade)
 	if level != null: $CurrentLevel.text = "LV." + str(level)
@@ -14,6 +16,7 @@ func load_values(level, stat, cost, next):
 	$UpgradeButton.text = format_number(cost)
 	if next != null: $NextStat.text = format_number(next)
 
+## Si [param state] es verdadero, deshabilita el botón y atenúa el color del “siguiente valor”.
 func update_button_status(state):
 	$UpgradeButton.set_disabled(state)
 	
@@ -22,6 +25,7 @@ func update_button_status(state):
 		if state: $NextStat.modulate = Color("#8f8f8f")
 		else: $NextStat.modulate = Color("#09ff00")
 
+## Igual que en [TopPanel]: abreviaturas para números grandes.
 func format_number(number):
 	var formatted_number = float(number)
 	var suffix_index = 0

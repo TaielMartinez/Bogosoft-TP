@@ -1,3 +1,4 @@
+## Esqueleto mago: ataca a distancia con la escena Fireball en lugar del golpe cuerpo a cuerpo por defecto.
 class_name Mage_Skeleton extends Enemy
 
 var fireball:PackedScene = preload("res://Scenes/Fireball.tscn")
@@ -6,6 +7,7 @@ var fireball:PackedScene = preload("res://Scenes/Fireball.tscn")
 const spd_base = 25
 const score = 40
 
+## Inicializa stats de mago y delega en [method Enemy._ready].
 func _ready():
 	life = stats.mage_hp
 	atk_power = stats.mage_atk
@@ -18,6 +20,7 @@ func _ready():
 		enemy_score = 1000
 	super()
 
+## Lanza un proyectil; el daño al castillo ocurre cuando la bola impacta el TileMap.
 func attack_castle():
 	animate_attack()
 	
@@ -31,19 +34,22 @@ func attack_castle():
 	# Use call_deferred to add new_fireball as a child
 	call_deferred("_add_new_fireball", new_fireball)
 
+## Añade la bola de fuego al padre en un frame seguro (evita errores de árbol de escena).
 func _add_new_fireball(new_fireball):
 	# Add new_fireball as a child to the parent node
 	get_parent().add_child(new_fireball)
 
-# Corrects the extra steps for regular attacks
+## Ajuste visual antes de reutilizar la lógica de contacto con el castillo de la clase base.
 func _on_body_entered(body):
 	position.x -= 10
 	hands.set_flip_v(true)
 	super(body)
 
+## Reenvía el daño del proyectil como señal [signal Enemy.enemy_attack].
 func fireball_dmg(damage):
 	enemy_attack.emit(damage)
 
+## Animación de “conjuro” moviendo las manos en lugar de solo rotar el cuerpo.
 func animate_attack():
 	# Hand movement tween
 	var hands_tween = get_tree().create_tween()

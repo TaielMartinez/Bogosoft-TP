@@ -1,7 +1,8 @@
+## Barra de vida flotante sobre un enemigo: texto numérico y franja proporcional al HP restante.
 extends TextureRect
 
-@onready var life_bar: Label
-@onready var percent_life: Sprite2D
+@onready var life_bar: Label = $Life
+@onready var percent_life: Sprite2D = $PercentLife
 
 var life: float = 0
 var max_life: float = 100
@@ -11,6 +12,7 @@ var initial_scale: float
 
 var suffixes = ["", "K", "M", "B", "T", "Q", "Qt"]  # Add more suffixes as needed
 
+## Guarda geometría inicial y deja la barra al máximo para el primer frame.
 func _ready():
 	# Guardar la posición inicial de la barra de vida, el ancho de la textura y la escala inicial
 	initial_position = percent_life.position
@@ -18,6 +20,7 @@ func _ready():
 	initial_scale = percent_life.scale.x
 	set_life(max_life)  # Inicializamos la barra de vida a su valor máximo al principio
 
+## Asigna vida actual, actualiza etiqueta y deforma el sprite de relleno de derecha a izquierda.
 func set_life(life_parm: float):
 	if life == 0:
 		max_life = life_parm
@@ -40,6 +43,7 @@ func set_life(life_parm: float):
 	# Ajustar la posición del Sprite2D para que se reduzca de derecha a izquierda
 	percent_life.position.x = initial_position.x - (initial_width * initial_scale * (1 - life_ratio)) * 0.5
 
+## Formato abreviado para el número mostrado sobre la barra.
 func format_number(number):
 	var formatted_number = float(number)
 	var suffix_index = 0

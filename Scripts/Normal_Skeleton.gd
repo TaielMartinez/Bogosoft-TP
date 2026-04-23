@@ -1,8 +1,10 @@
+## Esqueleto estándar: stats tomados de [code]stats.normal_*[/code], velocidad media y puntaje base.
 class_name Normal_Skeleton extends Enemy
 
 const spd_base = 40
 const score = 10
 
+## Inicializa vida, ataque, velocidad y puntaje; los jefes amplifican stats y puntaje.
 func _ready():
 	life = stats.normal_hp
 	atk_power = stats.normal_atk

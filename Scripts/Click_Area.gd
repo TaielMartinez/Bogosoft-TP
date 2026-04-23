@@ -1,8 +1,11 @@
+## Área de efecto del clic: daña a todos los enemigos solapados una vez (salvo lógica del timer interno).
 extends Area2D
 
 var stats : Stats
+## Evita aplicar daño en área repetidamente en el mismo ciclo de vida del nodo.
 var hit : bool = false
 
+## Escala el área según la mejora de tamaño en [Stats].
 func _ready():
 	self.scale = Vector2(stats.click_area_size_stat, stats.click_area_size_stat)
 	#CollisionShape2D.shape.set("radius", stats.click_area_size_stat)
@@ -29,12 +32,15 @@ func _ready():
 		#
 		#draw_line(start_point, end_point, color, 1)
 
+## Al solaparse con un enemigo, aplica el daño de área una sola vez por instancia de este nodo.
 func _on_area_entered(area):
 	if area.is_in_group("enemy") and !hit:
 		area.recibe_damage(stats.click_area_damage_stat)
 
+## Marca que el daño en área ya no debe aplicarse (tras un breve periodo definido en la escena).
 func _on_timer_timeout():
 	hit = true
 
+## Destruye el efecto visual cuando su animación termina.
 func _on_area_fx_animation_finished():
 	queue_free()

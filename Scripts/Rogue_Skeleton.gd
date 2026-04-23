@@ -1,9 +1,11 @@
+## Esqueleto rápido: poco daño por golpe pero ataca con mayor frecuencia ([code]atk_speed[/code] bajo).
 class_name Rogue_Skeleton extends Enemy
 
 const spd_base = 80
 const score = 20
 const atk_spd_base = 1
 
+## Inicializa desde [code]stats.rogue_*[/code] y configura cadencia de ataque base.
 func _ready():
 	life = stats.rogue_hp
 	atk_power = stats.rogue_atk

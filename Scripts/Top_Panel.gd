@@ -1,3 +1,4 @@
+## Barra superior: muestra vida del castillo y monedas con formato abreviado (K, M, …).
 class_name TopPanel extends Node
 
 var stats:Stats
@@ -8,18 +9,22 @@ var stats:Stats
 
 var suffixes = ["", "K", "M", "B", "T", "Q", "Qt"]  # Add more suffixes as needed
 
+## Sincroniza barra de vida y texto de monedas al iniciar o tras cambios grandes.
 func load_values():
 	update_player_hp()
 	update_player_coins()
 	
+## Refresca el label de monedas desde [code]stats.total_coins[/code].
 func update_player_coins():
 	player_coins.text = format_number(stats.total_coins)
 	
+## Ajusta el máximo de la barra, el valor actual y la etiqueta numérica de HP.
 func update_player_hp():
 	player_hp.set_max(stats.castle_max_hp_stat)
 	player_hp.set_value(stats.player_hp)
 	player_hp_label.text = format_number(stats.player_hp) + " / " + format_number(stats.castle_max_hp_stat)
 
+## Convierte enteros grandes a forma legible con sufijos; mantiene enteros si es pequeño.
 func format_number(number):
 	var formatted_number = float(number)
 	var suffix_index = 0

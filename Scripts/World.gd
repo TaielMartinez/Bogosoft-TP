@@ -1,7 +1,10 @@
+## Escena principal del juego: orquesta spawns, monedas, daño al castillo y fin de partida.
 class_name World extends Node
 
+## Desplazamiento vertical al crear monedas sobre la posición del enemigo muerto.
 const offset_coin = 15
 
+## Escenas precargadas de enemigos, cursor y monedas.
 var normal_skeleton : PackedScene = preload("res://Scenes/Normal_Skeleton.tscn")
 var warrior_skeleton : PackedScene = preload("res://Scenes/Warrior_Skeleton.tscn")
 var mage_skeleton : PackedScene = preload("res://Scenes/Mage_Skeleton.tscn")
@@ -10,7 +13,9 @@ var mouse : PackedScene = preload("res://Scenes/Mouse.tscn")
 var gold_coin : PackedScene = preload("res://Scenes/Gold_Coin.tscn")
 var silver_coin : PackedScene = preload("res://Scenes/Silver_Coin.tscn")
 
+## Estado global compartido (vida, monedas, mejoras, dificultad).
 @onready var stats = Stats.new()
+## Instancia del cursor que genera áreas de clic.
 @onready var mouse_instance = mouse.instantiate()
 
 @onready var upgrades_panel = $CanvasLayer/UpgradesPanel
@@ -18,15 +23,16 @@ var silver_coin : PackedScene = preload("res://Scenes/Silver_Coin.tscn")
 @onready var gameover_panel = $CanvasLayer/GameOverPanel
 @onready var score_panel = $CanvasLayer/ScorePanel
 
-# Enemy spawning area
+## Rango horizontal de aparición de enemigos (lado izquierdo de la pantalla).
 var min_spawn_width = -100
 var max_spawn_width = -10 # keep under zero!
 var max_spawn_height = 160
 var min_spawn_height = 50
 
+## Evita ejecutar game_over más de una vez.
 var game_finished:bool = false
 
-# PANELS AND CONNECTIONS ----------------------------------
+## Conecta paneles con [code]stats[/code], señales de jefe y fin de partida, y añade el cursor.
 func _ready():
 	# Initialize Top Panel
 	top_panel.stats = stats
@@ -50,7 +56,7 @@ func _ready():
 	mouse_instance.stats = stats
 	add_child(mouse_instance)
 
-# COINS ---------------------------------------------------
+## Crea [param amount] monedas cerca de [param position] y las enlaza al HUD.
 func spawn_coins(position, _amount):
 	position.y += offset_coin
 	
@@ -74,6 +80,7 @@ func spawn_coins(position, _amount):
 		# Randomize next coin position (if boss)
 		spawn_offset = Vector2(randf_range(-spawn_radius, spawn_radius), randf_range(-spawn_radius, spawn_radius))
 
+## Slot de [signal Coin.coin_pickUp]: suma monedas y refresca botones de mejora.
 func _on_coin_pick_up(coins):
 	# Updates the internal total_coins stat
 	stats.total_coins += coins * stats.coin_value_multiplier
@@ -82,7 +89,7 @@ func _on_coin_pick_up(coins):
 	# Updates every upgrade button state
 	upgrades_panel.update_upgrade_button_status()
 
-# ENEMIES -------------------------------------------------
+## Cada tick del [SpawnTimer]: elige cuántos enemigos crear y de qué tipo según desbloqueos y RNG.
 func _on_spawn_timer_timeout():
 	$SpawnTimer.wait_time = stats.enemy_spawn_rate
 	# Enemy spawning logic
@@ -94,6 +101,7 @@ func _on_spawn_timer_timeout():
 		elif spawn_type > 0.4 and stats.unlock_mages: spawn_enemy(mage_skeleton.instantiate())
 		else: spawn_enemy(normal_skeleton.instantiate())
 
+## Configura posición, señales y [code]stats[/code] de un enemigo ya instanciado y lo añade al árbol.
 func spawn_enemy(new_enemy):
 	new_enemy.global_position = Vector2(randf_range(min_spawn_width, max_spawn_width), randf_range(min_spawn_height, max_spawn_height))
 	new_enemy.connect("enemy_death", spawn_coins)
@@ -101,6 +109,7 @@ func spawn_enemy(new_enemy):
 	new_enemy.stats = stats
 	get_node("Enemies").add_child(new_enemy)
 	
+## Aplica daño al castillo, actualiza la barra superior y comprueba derrota.
 func _on_castle_attacked(damage):
 	# Update values on Stats and on the HUD
 	stats.take_damage(damage)
@@ -108,7 +117,7 @@ func _on_castle_attacked(damage):
 	
 	if (stats.player_hp <= 0 and !game_finished): game_over()
 
-# SPECIAL ENEMIES -----------------------------------------
+## Invocado por [Score_Panel]: genera un jefe escalado y con más recompensa en monedas.
 func spawn_boss():
 	var spawn_type:float = randf_range(0, 1)
 	var new_boss
@@ -125,7 +134,7 @@ func spawn_boss():
 	new_boss.apply_scale(Vector2(1.5, 1.5))
 	get_node("Enemies").add_child(new_boss)
 
-# ENDING --------------------------------------------------
+## Congela el gameplay y muestra el panel de fin con estadísticas.
 func game_over():
 	game_finished = true
 	# Stop spawning new enemies
@@ -153,9 +162,11 @@ func game_over():
 	gameover_panel.load_values()
 	gameover_panel.set_visible(true)
 	
+## Recarga la escena para una nueva partida.
 func _on_restart_button_pressed():
 	gameover_panel.set_visible(false)
 	get_tree().reload_current_scene()
 
+## Sale del juego.
 func _on_quit_button_pressed():
 	get_tree().quit()

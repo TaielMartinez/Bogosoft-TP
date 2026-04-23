@@ -1,3 +1,4 @@
+## Cursor del jugador: sincroniza sprite con el puntero del sistema y spawnea zonas de daño al clic.
 extends AnimatedSprite2D
 
 var click_damage = preload("res://Scenes/Click_Damage.tscn")
@@ -7,9 +8,11 @@ var click_area_instance
 
 var stats : Stats
 
+## Actualiza el cursor del SO con el fotograma actual de esta animación.
 func _process(_delta):
 	Input.set_custom_mouse_cursor(sprite_frames.get_frame_texture(animation, frame), Input.CURSOR_ARROW, Vector2(sprite_frames.get_frame_texture(animation, frame).get_width(), sprite_frames.get_frame_texture(animation, frame).get_height()) / 2)
 
+## Clic: animación, instancia de daño puntual y opcionalmente área de daño si hay mejora de tamaño.
 func _unhandled_input(event):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		self.play("on_click")

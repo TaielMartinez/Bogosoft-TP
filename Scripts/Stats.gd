@@ -1,3 +1,4 @@
+## Modelo de datos de la partida: economía, vida del castillo, mejoras y escalado de enemigos.
 class_name Stats extends Node
 
 var upgrades:Upgrades = Upgrades.new()
@@ -77,6 +78,7 @@ var player_hp = 100
 var time: int = 0
 var score: int = 0
 
+## Inicializa los valores [code]next[/code] de cada mejora según las fórmulas de [Upgrades].
 func _init():
 	# Initialize the 'next' values of every upgrade HERE
 	click_damage_next = upgrades.generic_update(click_damage_stat)
@@ -92,6 +94,7 @@ func _init():
 
 
 # STAT UPGRADE FUNCTIONS ----------------------------------
+## Compra: sube daño por clic, coste y recalcula el siguiente valor de stat.
 func upgrade_click_damage():
 	total_coins -= click_damage_cost
 	
@@ -100,6 +103,7 @@ func upgrade_click_damage():
 	click_damage_cost *= 2
 	click_damage_next = upgrades.generic_update(click_damage_stat)
 
+## Compra: aumenta el factor de escala del área de clic.
 func upgrade_click_area_size():
 	total_coins -= click_area_size_cost
 	
@@ -108,6 +112,7 @@ func upgrade_click_area_size():
 	click_area_size_cost *= 2
 	click_area_size_next = upgrades.generic_update_float(click_area_size_stat, true)
 
+## Compra: aumenta el daño del área alrededor del clic.
 func upgrade_click_area_damage():
 	total_coins -= click_area_damage_cost
 	
@@ -116,6 +121,7 @@ func upgrade_click_area_damage():
 	click_area_damage_cost *= 2
 	click_area_damage_next = upgrades.generic_update(click_area_damage_stat)
 
+## Compra: incrementa el contador de arqueros desbloqueados (la escena se añade desde el panel).
 func upgrade_number_archers():
 	total_coins -= number_archers_cost
 	
@@ -124,6 +130,7 @@ func upgrade_number_archers():
 	number_archers_cost *= 2
 	number_archers_next = number_archers_stat + 1
 	
+## Compra: más daño por flecha.
 func upgrade_arrow_damage():
 	total_coins -= arrow_damage_cost
 	
@@ -132,6 +139,7 @@ func upgrade_arrow_damage():
 	arrow_damage_cost *= 2
 	arrow_damage_next = upgrades.generic_update(arrow_damage_stat)
 	
+## Compra: reduce el intervalo entre disparos (valor float en segundos).
 func upgrade_arrow_cooldown():
 	total_coins -= arrow_cooldown_cost
 	
@@ -140,6 +148,7 @@ func upgrade_arrow_cooldown():
 	arrow_cooldown_cost *= 2
 	arrow_cooldown_next = upgrades.generic_update_float(arrow_cooldown_stat, false)
 	
+## Compra: más flechas disparadas por cada tick del arquero.
 func upgrade_number_arrows():
 	total_coins -= number_arrows_cost
 	
@@ -148,6 +157,7 @@ func upgrade_number_arrows():
 	number_arrows_cost *= 2
 	number_arrows_next = number_arrows_stat + 1
 
+## Compra: cura una fracción de la vida máxima del castillo (hasta el tope).
 func upgrade_castle_repairs():
 	total_coins -= castle_repairs_cost
 	
@@ -156,6 +166,7 @@ func upgrade_castle_repairs():
 		player_hp = castle_max_hp_stat
 	else: player_hp += castle_max_hp_stat / 4
 
+## Compra: sube vida máxima, cura por completo y actualiza el coste de reparación.
 func upgrade_castle_max_hp():
 	total_coins -= castle_max_hp_cost
 	
@@ -168,15 +179,18 @@ func upgrade_castle_max_hp():
 	player_hp = castle_max_hp_stat
 	castle_repairs_cost = castle_max_hp_cost / 4
 
+## Resta vida al castillo sin pasar de cero.
 func take_damage(damage):
 	# Depending on player_hp, take damage amount or stop at zero
 	if (player_hp - damage) <= 0:
 		player_hp = 0
 	else: player_hp -= damage
 	
+## Multiplica el valor de las monedas recogidas (evento periódico del juego).
 func increase_coin_multiplier():
 	coin_value_multiplier *= 1.7
 
+## Endurece enemigos: más vida/daño base por tipo, más spawns simultáneos y spawn más frecuente.
 func increase_difficulty():
 	enemy_life_multiplier += 1
 	enemy_damage_multiplier += 0.5

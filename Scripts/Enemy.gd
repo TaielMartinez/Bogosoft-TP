@@ -1,5 +1,7 @@
+## Clase base de enemigos: movimiento, barra de vida, ataque al castillo y muerte.
 class_name Enemy extends Area2D
 
+## Referencia al estado global (puntaje, stats escalados, etc.).
 var stats : Stats
 
 # Enemy stats
@@ -17,10 +19,12 @@ var attack_fx:PackedScene = load("res://Scenes/Enemy_Hit_FX.tscn")
 var atk_timer = Timer.new()
 var rotate_tween = null
 
-# Signals sent back to World
+## Emitida al finalizar la animación de muerte: posición y cantidad de monedas a crear.
 signal enemy_death
+## Emitida en cada golpe al castillo con el daño entero.
 signal enemy_attack
 
+## Registro en grupo, barra de HP oculta hasta recibir daño, timer de ataque en bucle.
 func _ready():
 	add_to_group("enemy")
 	set_monitorable(true)
@@ -35,9 +39,11 @@ func _ready():
 	add_child(atk_timer)
 	atk_timer.connect("timeout", attack_castle)
 
+## Avanza el enemigo hacia la derecha en píxeles por segundo.
 func _process(delta):
 	position.x += speed * delta
 
+## Al tocar el TileMap del castillo: detiene marcha, animación idle y comienza cadena de ataques.
 func _on_body_entered(body):
 	if body.name == "TileMap":
 		if life <= 0:
@@ -51,6 +57,7 @@ func _on_body_entered(body):
 			attack_castle()
 			atk_timer.start(atk_speed)
 
+## Aplica daño desde clics, flechas o áreas; gestiona feedback visual y transición a muerte.
 func recibe_damage(damage:int):
 	if life <= 0:
 		if get_node("AnimatedSprite2D").get_animation() == "default":
@@ -79,21 +86,25 @@ func recibe_damage(damage:int):
 		position.y -= 8
 		speed = 0
 
+## Al cambiar a animación [code]death[/code], suma el puntaje de este enemigo a [code]stats.score[/code].
 func _on_animated_sprite_2d_animation_changed():
 	if self.get_node("AnimatedSprite2D").get_animation() == "death":
 		stats.score += enemy_score
 
+## Al terminar la animación de muerte, avisa para monedas y elimina el nodo.
 func _on_animated_sprite_2d_animation_finished():
 	if is_boss: enemy_death.emit(global_position, 5)
 	else: enemy_death.emit(global_position, 1)
 	queue_free()
 
+## Un ciclo de ataque: animación + señal de daño al castillo.
 func attack_castle():
 	# Create a single attack motion, and show a hit particle on the castle
 	animate_attack()
 	# Signal to World to decrease HP
 	enemy_attack.emit(atk_power)
 	
+## Rota el sprite y muestra un efecto visual cerca del muro del castillo.
 func animate_attack():
 	# Movement tween
 	rotate_tween = get_tree().create_tween()
